@@ -96,8 +96,7 @@ blockCount (S (s:rs)) = length (filter (Nothing/=) (concat (s:rs)))
 -- ** A04
 -- | Shape invariant (shapes have at least one row, at least one column, and are rectangular)
 prop_Shape :: Shape -> Bool
-prop_Shape (S (s:rs)) = (length (s)>0)&&(length (rs)>0)
---prop_Shape (S (s:rs)) = shapeSize (S (s:rs)) > (0,0)
+prop_Shape (S (s:rs)) = shapeSize (S (s:rs)) > (0,0)
 
 
 -- * Test data generators
@@ -129,17 +128,31 @@ rotateShape (S (s:rs)) = S (reverse (transpose (s:rs)))
 -- ** A08
 -- | shiftShape adds empty squares above and to the left of the shape
 shiftShape :: (Int,Int) -> Shape -> Shape
-shiftShape = 
+shiftShape (n,r) (S (s:rs)) = S (shiftDown n (shiftRight r (s:rs))) 
+
+shiftDown :: Int -> [Row] -> [Row]
+shiftDown n row = [(replicate n Nothing) ++ r | r <- row]
+
+
+shiftRight :: Int -> [Row] -> [Row]
+shiftRight n (s:rs) = (rows (emptyShape ((length(s)),n))) ++ (s:rs)
 
 -- ** A09
 -- | padShape adds empty sqaure below and to the right of the shape
 padShape :: (Int,Int) -> Shape -> Shape
-padShape = error "A09 padShape undefined"
+padShape (n,r) (S (s:rs)) = S (shiftUp n ( shiftLeft r (s:rs)))
+
+shiftLeft :: Int -> [Row] -> [Row]
+shiftLeft n (s:rs) = (s:rs) ++ (rows (emptyShape ((length(s)),n)))
+
+shiftUp :: Int -> [Row] -> [Row]
+shiftUp n row = [r ++ (replicate n Nothing) | r <-row]
 
 -- ** A10
 -- | pad a shape to a given size
 padShapeTo :: (Int,Int) -> Shape -> Shape
-padShapeTo = error "A10 padShapeTo undefined"
+padShapeTo (n,r) (S (s:rs)) = padShape ((n-x),(r-y)) (S (s:rs)) 
+  where (x,y) = shapeSize (S (s:rs))
 
 -- * Comparing and combining shapes
 
